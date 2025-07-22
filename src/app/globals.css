@@ -1,0 +1,61 @@
+@import "tailwindcss";
+/* src/app/globals.css */
+
+@import 'prismjs/themes/prism-tomorrow.css'; /* Add this line */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ... your other custom styles ... */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+/* src/app/globals.css */
+
+/* ... existing tailwind imports ... */
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animated-gradient {
+  background-size: 200% 200%;
+  background-image: linear-gradient(
+    -45deg,
+    #1e293b, /* slate-800 */
+    #0f172a, /* slate-900 */
+    #334155, /* slate-700 */
+    #020617  /* slate-950 */
+  );
+  animation: gradient-animation 15s ease infinite;
+}

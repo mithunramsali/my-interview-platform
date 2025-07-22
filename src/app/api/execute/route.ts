@@ -3,6 +3,12 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 
+// Define a type for the test cases
+interface TestCase {
+  input: Record<string, unknown>;
+  output: any;
+}
+
 const languageToId: { [key: string]: number } = {
   javascript: 93,
   python: 92,
@@ -29,9 +35,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Test cases not found for this problem' }, { status: 404 });
     }
 
-    const submissionPromises = problem.testCases.map((testCase: any) => {
+    const submissionPromises = problem.testCases.map((testCase: TestCase) => {
       let sourceCode = code;
-      // This wrapper is crucial for Python to print the function's return value
       if (language === 'python') {
         const inputString = Object.values(testCase.input).map(val => JSON.stringify(val)).join(', ');
         sourceCode += `\nprint(solve(${inputString}))`;
@@ -63,29 +68,19 @@ export async function POST(request: Request) {
       
       if (result && result.status && result.status.id) {
         let passed = false;
-        let actualOutputTrimmed = (result.stdout || '').trim();
+        const actualOutputTrimmed = (result.stdout || '').trim();
         let actualOutput: any = actualOutputTrimmed;
 
-        if (result.status.id === 3) { // Status 3 is "Accepted"
-           // --- START: THE FIX IS HERE ---
-           // This block makes the comparison smarter by handling different types.
+        if (result.status.id === 3) {
            try {
-              // First, try to parse the output as JSON (handles arrays, numbers, etc.)
               actualOutput = JSON.parse(actualOutputTrimmed);
-           } catch (e) {
-              // If it fails, it's a raw string. Now we check for boolean-like strings.
+           } catch {
               if (typeof testCase.output === 'boolean') {
-                if (actualOutputTrimmed.toLowerCase() === 'true') {
-                  actualOutput = true;
-                } else if (actualOutputTrimmed.toLowerCase() === 'false') {
-                  actualOutput = false;
-                }
+                if (actualOutputTrimmed.toLowerCase() === 'true') actualOutput = true;
+                else if (actualOutputTrimmed.toLowerCase() === 'false') actualOutput = false;
               }
-              // Otherwise, keep it as a string
            }
-           // Now, compare the (potentially parsed and normalized) output
            passed = JSON.stringify(actualOutput) === JSON.stringify(testCase.output);
-           // --- END: THE FIX ---
         }
         
         if (!passed) allTestsPassed = false;
@@ -101,7 +96,7 @@ export async function POST(request: Request) {
         results.push({
           input: testCase.input,
           expected: testCase.output,
-          actual: result.message || 'An unknown error occurred with the execution service.',
+          actual: result.message || 'An unknown error occurred',
           passed: false,
         });
       }
@@ -109,8 +104,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ allTestsPassed, results });
 
-  } catch (e: any) {
-    console.error("Execution API error:", e);
-    return NextResponse.json({ error: `An internal server error occurred: ${e.message}` }, { status: 500 });
+  } catch (e) { // Type the error as 'unknown'
+    const error = e as Error;
+    console.error("Execution API error:", error);
+    return NextResponse.json({ error: `An internal server error occurred: ${error.message}` }, { status: 500 });
   }
 }

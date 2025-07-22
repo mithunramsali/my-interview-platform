@@ -11,7 +11,7 @@ import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth(); // The login function now expects user data
+  const { login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,19 +35,18 @@ export default function LoginPage() {
         throw new Error(data.message || 'Failed to login');
       }
 
-      // Pass the received user data to the login function
-      login(data.user); 
-      router.push('/courses'); 
+      login(data.user);
+      router.push('/courses');
 
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const error = err as Error;
+      setError(error.message);
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    // ... your login form JSX remains the same ...
     <>
       <Header />
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -64,7 +63,9 @@ export default function LoginPage() {
               <label htmlFor="password">Password</label>
               <input id="password" type="password" required value={password} onChange={e => setPassword(e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm"/>
             </div>
+            
             {error && <p className="text-sm text-red-600">{error}</p>}
+            
             <div className="flex items-center justify-between">
               <div className="text-sm">
                 <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
@@ -83,7 +84,7 @@ export default function LoginPage() {
             </div>
           </form>
           <p className="text-sm text-center text-gray-600">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
               Sign up
             </Link>

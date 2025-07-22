@@ -12,13 +12,11 @@ import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
 export default function RegisterPage() {
   const router = useRouter();
   
-  // State for form fields
   const [fullname, setFullname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // State for password validation UI
   const [validations, setValidations] = useState({
     minLength: false,
     hasCapital: false,
@@ -26,12 +24,10 @@ export default function RegisterPage() {
     hasSymbol: false,
   });
 
-  // State for form submission status
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  // Effect to validate password in real-time
   useEffect(() => {
     setValidations({
       minLength: password.length >= 8,
@@ -41,12 +37,10 @@ export default function RegisterPage() {
     });
   }, [password]);
 
-  // Handle form submission
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError(''); // Reset error message
+    setError('');
     
-    // --- Frontend Validation ---
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -70,19 +64,17 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        // If API returns an error, show it
         throw new Error(data.message || 'Something went wrong');
       }
 
-      // If registration is successful
       setSuccess(true);
-      // Redirect to login page after 2 seconds
       setTimeout(() => {
         router.push('/login');
       }, 2000);
 
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const error = err as Error;
+      setError(error.message);
     } finally {
       setSubmitting(false);
     }
@@ -104,7 +96,6 @@ export default function RegisterPage() {
                 Create your account
               </h2>
               <form className="space-y-6" onSubmit={handleSubmit}>
-                {/* --- Form Inputs --- */}
                 <div>
                   <label htmlFor="fullname">Full Name</label>
                   <input id="fullname" type="text" required value={fullname} onChange={e => setFullname(e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm"/>
@@ -118,7 +109,6 @@ export default function RegisterPage() {
                   <input id="password" type="password" required value={password} onChange={e => setPassword(e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm"/>
                 </div>
                 
-                {/* --- Password Validation UI --- */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 text-sm">
                   <ValidationItem isValid={validations.minLength} text="At least 8 characters" />
                   <ValidationItem isValid={validations.hasCapital} text="One capital letter" />
@@ -131,10 +121,8 @@ export default function RegisterPage() {
                   <input id="confirm-password" type="password" required value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm"/>
                 </div>
                 
-                {/* --- Error Message Display --- */}
                 {error && <p className="text-sm text-red-600">{error}</p>}
                 
-                {/* --- Submit Button --- */}
                 <div>
                   <button type="submit" disabled={submitting} className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400">
                     {submitting ? 'Creating Account...' : 'Create Account'}
@@ -156,7 +144,6 @@ export default function RegisterPage() {
   );
 }
 
-// Helper component for validation items
 const ValidationItem = ({ isValid, text }: { isValid: boolean, text: string }) => (
   <div className="flex items-center">
     {isValid ? (

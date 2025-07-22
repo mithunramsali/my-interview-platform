@@ -3,34 +3,35 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-import { cookies } from 'next/headers'; // 1. Import the 'cookies' function
+import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key';
+
+interface DecodedToken {
+  id: string;
+}
 
 export async function GET() {
   try {
     const client = await clientPromise;
     const db = client.db('CodeCracker');
     
-    // 2. Get the cookie store directly
     const cookieStore = cookies();
     const token = cookieStore.get('authToken')?.value;
 
     let userId = null;
     if (token) {
         try {
-            const decoded: any = jwt.verify(token, JWT_SECRET);
+            const decoded = jwt.verify(token, JWT_SECRET) as DecodedToken;
             userId = decoded.id;
-        } catch (e) {
+        } catch {
             console.log('Invalid token');
         }
     }
 
-    // Fetch all problems
     let problems = await db.collection('problems').find({}).toArray();
 
-    // If a user is logged in, fetch their submissions and merge the status
     if (userId) {
         const submissions = await db.collection('submissions').find({ userId: new ObjectId(userId) }).toArray();
         const submissionMap = new Map(submissions.map(s => [s.problemId, s.status]));
@@ -40,7 +41,6 @@ export async function GET() {
             status: submissionMap.get(problem.id) || 'Todo',
         }));
     } else {
-        // If no user is logged in, default all statuses to 'Todo'
         problems = problems.map(problem => ({
             ...problem,
             status: 'Todo',
@@ -49,6 +49,7 @@ export async function GET() {
 
     return NextResponse.json(problems);
   } catch (e) {
+    const error = e as Error;
     console.error(e);
     return NextResponse.json({ error: 'Unable to fetch problems' }, { status: 500 });
   }

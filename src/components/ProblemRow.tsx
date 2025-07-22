@@ -10,7 +10,7 @@ export type Problem = {
   topic: string;
   status: 'Solved' | 'Attempted' | 'Todo';
   description?: string;
-  testCases?: any[]; // Add this line. The '?' makes it optional.
+  testCases?: any[];
 };
 
 type ProblemRowProps = {

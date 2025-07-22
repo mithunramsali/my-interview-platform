@@ -22,6 +22,12 @@ interface CodeEditorProps {
   problemId: string;
 }
 
+interface Result {
+  allTestsPassed: boolean;
+  results?: any[];
+  error?: string;
+}
+
 const languageDisplayNames: Record<Language, string> = {
   javascript: 'JavaScript',
   python: 'Python',
@@ -33,7 +39,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ starterCode, problemId }) => {
   const { user } = useAuth();
   const [selectedLanguage, setSelectedLanguage] = useState<Language>('javascript');
   const [code, setCode] = useState(starterCode.javascript);
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<Result | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -59,7 +65,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ starterCode, problemId }) => {
         body: JSON.stringify({ code, problemId, language: selectedLanguage }),
       });
       const resultData = await executeResponse.json();
-      if (!executeResponse.ok) throw new Error(resultData.error || 'An error occurred during execution');
+      if (!executeResponse.ok) throw new Error(resultData.error || 'An error occurred');
       setResults(resultData);
 
       if (user) {
@@ -74,8 +80,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ starterCode, problemId }) => {
         });
       }
 
-    } catch (err: any) {
-      setResults({ error: err.message });
+    } catch (err) {
+      const error = err as Error;
+      setResults({ error: error.message, allTestsPassed: false });
     } finally {
       setIsSubmitting(false);
     }

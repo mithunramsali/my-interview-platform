@@ -3,7 +3,7 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-import { cookies } from 'next/headers'; // Import the 'cookies' function
+import { cookies } from 'next/headers'; // 1. Import the 'cookies' function
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key';
@@ -13,7 +13,7 @@ export async function GET() {
     const client = await clientPromise;
     const db = client.db('CodeCracker');
     
-    // Get the cookie store directly
+    // 2. Get the cookie store directly
     const cookieStore = cookies();
     const token = cookieStore.get('authToken')?.value;
 

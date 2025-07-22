@@ -15,7 +15,7 @@ export async function GET() {
     
     // Get the cookie store directly
     const cookieStore = cookies();
-    const token = (await cookieStore).get('authToken')?.value;
+    const token = cookieStore.get('authToken')?.value;
 
     let userId = null;
     if (token) {

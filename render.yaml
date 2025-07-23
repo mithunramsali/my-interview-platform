@@ -1,5 +1,5 @@
 services:
-  # 1. Your Next.js Web Service (no changes here)
+  # A Web Service for your Next.js frontend
   - type: web
     name: my-interview-platform
     env: node
@@ -8,10 +8,8 @@ services:
     startCommand: 'npm start'
     healthCheckPath: /
     envVars:
-      - key: MONGODB_URI
-        fromDatabase:
-          name: codecracker-db
-          property: connectionString
+      - key: MONGODB_URI # This will be set manually in the Render dashboard
+        sync: false
       - key: JWT_SECRET
         sync: false
       - key: JUDGE0_API_KEY
@@ -20,9 +18,3 @@ services:
         sync: false
       - key: NODE_ENV
         value: production
-
-  # 2. Your MongoDB Database (Corrected Configuration)
-  - type: database # Changed from 'pserv' to 'database'
-    name: codecracker-db
-    databaseName: CodeCracker # Specify the database name
-    plan: free

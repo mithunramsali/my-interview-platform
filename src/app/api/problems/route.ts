@@ -17,7 +17,7 @@ export async function GET() {
     const client = await clientPromise;
     const db = client.db('CodeCracker');
     
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get('authToken')?.value;
 
     let userId = null;

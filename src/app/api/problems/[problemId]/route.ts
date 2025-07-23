@@ -3,10 +3,9 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 
-export async function GET(request: Request, context: { params: { problemId: string } }) {
+export async function GET(request: Request, { params }: { params: { problemId: string } }) {
   try {
-    // Use await if params is a promise that needs to resolve
-    const { problemId } = await context.params; // Ensure params are awaited here
+    const { problemId } = params;
 
     const client = await clientPromise;
     const db = client.db('CodeCracker');

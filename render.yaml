@@ -1,0 +1,28 @@
+services:
+  # A Web Service for your Next.js frontend
+  - type: web
+    name: my-interview-platform
+    env: node
+    plan: free # Use the free instance type
+    buildCommand: 'npm install && npm run build'
+    startCommand: 'npm start'
+    healthCheckPath: /
+    envVars:
+      - key: MONGODB_URI
+        fromDatabase:
+          name: codecracker-db
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false # Manually enter this in the Render dashboard
+      - key: JUDGE0_API_KEY
+        sync: false # Manually enter this in the Render dashboard
+      - key: JUDGE0_API_HOST
+        sync: false # Manually enter this in the Render dashboard
+      - key: NODE_ENV
+        value: production
+
+  # A Private Service for your MongoDB database
+  - type: pserv
+    name: codecracker-db
+    env: mongodb
+    plan: free # Use the free instance type for MongoDB

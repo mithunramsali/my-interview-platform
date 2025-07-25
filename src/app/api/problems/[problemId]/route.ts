@@ -3,23 +3,18 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 
-// This is the context object that Next.js passes to the function.
-// It must contain a 'params' property.
-interface RouteContext {
-  params: {
-    problemId: string;
-  }
-}
-
-export async function GET(request: Request, context: RouteContext) {
+export async function GET(request: Request) {
   try {
-    const { params } = context; // Destructure params from the context object
+    const url = new URL(request.url);
+    const pathnameParts = url.pathname.split('/');
+    const problemId = pathnameParts[pathnameParts.length - 1];
+
     const client = await clientPromise;
     const db = client.db('CodeCracker');
 
     const problem = await db
       .collection('problems')
-      .findOne({ id: params.problemId });
+      .findOne({ id: problemId });
 
     if (!problem) {
       return NextResponse.json({ error: 'Problem not found' }, { status: 404 });
